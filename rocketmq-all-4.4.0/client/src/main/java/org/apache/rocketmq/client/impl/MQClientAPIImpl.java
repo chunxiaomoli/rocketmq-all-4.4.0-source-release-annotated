@@ -413,6 +413,8 @@ public class MQClientAPIImpl {
                     }
                 } else {
                     producer.updateFaultItem(brokerName, System.currentTimeMillis() - responseFuture.getBeginTimestamp(), true);
+                    //异步发送虽然也可以通过retryTimesWhenSendFailed来控制重试次数，但是重试入口在收到服务端响应包时进行的，
+                    //如果出现网络异常、网络超时等将不会重试
                     if (!responseFuture.isSendRequestOK()) {
                         MQClientException ex = new MQClientException("send request failed", responseFuture.getCause());
                         onExceptionImpl(brokerName, msg, 0L, request, sendCallback, topicPublishInfo, instance,

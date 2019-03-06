@@ -33,7 +33,7 @@ public class IndexFile {
     private static int indexSize = 20;
     private static int invalidIndex = 0;
     private final int hashSlotNum;
-    private final int indexNum;
+    private final int indexNum; //默认为2000w
     private final MappedFile mappedFile;
     private final FileChannel fileChannel;
     private final MappedByteBuffer mappedByteBuffer;

@@ -98,8 +98,10 @@ public class DefaultMessageStore implements MessageStore {
     private final MessageArrivingListener messageArrivingListener;
     private final BrokerConfig brokerConfig;
 
+    //消息存储是否关闭,如果关闭，则禁止写入消息
     private volatile boolean shutdown = true;
 
+    //文件刷盘检查点
     private StoreCheckpoint storeCheckpoint;
 
     private AtomicLong printTimes = new AtomicLong(0);
@@ -230,6 +232,7 @@ public class DefaultMessageStore implements MessageStore {
         } else {
             this.reputMessageService.setReputFromOffset(this.commitLog.getMaxOffset());
         }
+        //该线程主要负责实时更新consumequeue和index文件
         this.reputMessageService.start();
 
         this.haService.start();
@@ -1169,7 +1172,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     private void addScheduleTask() {
-
+        //定时清理过期文件(commitlog、consumequeue)
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -1462,7 +1465,7 @@ public class DefaultMessageStore implements MessageStore {
 
         public void run() {
             try {
-                this.deleteExpiredFiles();
+                this.deleteExpiredFiles();//删除过期文件
 
                 this.redeleteHangedFile();
             } catch (Throwable e) {
@@ -1815,6 +1818,7 @@ public class DefaultMessageStore implements MessageStore {
             }
         }
 
+        //实时同步更新consumequeue和index
         @Override
         public void run() {
             DefaultMessageStore.log.info(this.getServiceName() + " service started");

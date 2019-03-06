@@ -206,7 +206,7 @@ public class MappedFileQueue {
         if (createOffset != -1 && needCreate) {
             String nextFilePath = this.storePath + File.separator + UtilAll.offset2FileName(createOffset);
             String nextNextFilePath = this.storePath + File.separator
-                + UtilAll.offset2FileName(createOffset + this.mappedFileSize);
+                + UtilAll.offset2FileName(createOffset + this.mappedFileSize); //mappedFileSize = 1024 * 1024 * 1024
             MappedFile mappedFile = null;
 
             if (this.allocateMappedFileService != null) {
