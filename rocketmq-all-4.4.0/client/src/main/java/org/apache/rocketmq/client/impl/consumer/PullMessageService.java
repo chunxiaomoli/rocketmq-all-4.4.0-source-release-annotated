@@ -44,7 +44,7 @@ public class PullMessageService extends ServiceThread {
         this.mQClientFactory = mQClientFactory;
     }
 
-    //延迟添加消息拉取请求实体到pullRequestQueue阻塞队列
+    //延迟添加pullRequest实体到pullRequestQueue阻塞队列
     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
         if (!isStopped()) {
             this.scheduledExecutorService.schedule(new Runnable() {

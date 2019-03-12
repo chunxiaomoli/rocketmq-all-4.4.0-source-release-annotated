@@ -626,9 +626,11 @@ public class MQClientAPIImpl {
         return this.processPullResponse(response);
     }
 
+    //把拉取响应 封装成 PullResultExt
     private PullResult processPullResponse(
         final RemotingCommand response) throws MQBrokerException, RemotingCommandException {
         PullStatus pullStatus = PullStatus.NO_NEW_MSG;
+        //状态编码转换
         switch (response.getCode()) {
             case ResponseCode.SUCCESS:
                 pullStatus = PullStatus.FOUND;
@@ -651,7 +653,7 @@ public class MQClientAPIImpl {
             (PullMessageResponseHeader) response.decodeCommandCustomHeader(PullMessageResponseHeader.class);
 
         return new PullResultExt(pullStatus, responseHeader.getNextBeginOffset(), responseHeader.getMinOffset(),
-            responseHeader.getMaxOffset(), null, responseHeader.getSuggestWhichBrokerId(), response.getBody());
+            responseHeader.getMaxOffset(), null, responseHeader.getSuggestWhichBrokerId(), response.getBody() /** 此时的消息还是byte[]格式哦*/);
     }
 
     public MessageExt viewMessage(final String addr, final long phyoffset, final long timeoutMillis)

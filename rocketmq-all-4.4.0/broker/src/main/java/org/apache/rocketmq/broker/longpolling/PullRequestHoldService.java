@@ -68,14 +68,16 @@ public class PullRequestHoldService extends ServiceThread {
         log.info("{} service started", this.getServiceName());
         while (!this.isStopped()) {
             try {
+                //longPollingEnable每5s尝试一次
                 if (this.brokerController.getBrokerConfig().isLongPollingEnable()) {
                     this.waitForRunning(5 * 1000);
                 } else {
+                    //shortPollingTimeMills默认1s
                     this.waitForRunning(this.brokerController.getBrokerConfig().getShortPollingTimeMills());
                 }
 
                 long beginLockTimestamp = this.systemClock.now();
-                this.checkHoldRequest();
+                this.checkHoldRequest(); //检查是否有新消息到达
                 long costTime = this.systemClock.now() - beginLockTimestamp;
                 if (costTime > 5 * 1000) {
                     log.info("[NOTIFYME] check hold request cost {} ms.", costTime);
@@ -113,6 +115,7 @@ public class PullRequestHoldService extends ServiceThread {
         notifyMessageArriving(topic, queueId, maxOffset, null, 0, null, null);
     }
 
+
     public void notifyMessageArriving(final String topic, final int queueId, final long maxOffset, final Long tagsCode,
         long msgStoreTime, byte[] filterBitMap, Map<String, String> properties) {
         String key = this.buildKey(topic, queueId);
@@ -135,7 +138,7 @@ public class PullRequestHoldService extends ServiceThread {
                         if (match && properties != null) {
                             match = request.getMessageFilter().isMatchedByCommitLog(null, properties);
                         }
-
+                        //如果消息队列的最大偏移量>待拉取偏移量，且消息匹配=》调用executeRequestWhenWakeup将消息返回给消息拉取客户端
                         if (match) {
                             try {
                                 this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
@@ -146,7 +149,7 @@ public class PullRequestHoldService extends ServiceThread {
                             continue;
                         }
                     }
-
+                    //如果挂起超时，则不继续等待，直接返回消息未找到
                     if (System.currentTimeMillis() >= (request.getSuspendTimestamp() + request.getTimeoutMillis())) {
                         try {
                             this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),

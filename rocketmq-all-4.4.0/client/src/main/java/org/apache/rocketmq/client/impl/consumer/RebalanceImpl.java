@@ -217,7 +217,7 @@ public abstract class RebalanceImpl {
     }
 
     public void doRebalance(final boolean isOrder) {
-        Map<String, SubscriptionData> subTable = this.getSubscriptionInner();
+        Map<String/*topic*/, SubscriptionData> subTable = this.getSubscriptionInner();
         if (subTable != null) {
             for (final Map.Entry<String, SubscriptionData> entry : subTable.entrySet()) {
                 final String topic = entry.getKey();
@@ -259,7 +259,7 @@ public abstract class RebalanceImpl {
             }
             case CLUSTERING: {
                 Set<MessageQueue> mqSet = this.topicSubscribeInfoTable.get(topic);
-                List<String> cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup);
+                List<String> cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup); //根据topic和消费组找到所有的消费端ID
                 if (null == mqSet) {
                     if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
                         log.warn("doRebalance, {}, but the topic[{}] not exist.", consumerGroup, topic);

@@ -540,6 +540,8 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             @Override
             public void run() {
                 try {
+                    //回到长轮询入口，brokerAllowSuspend为false，表示不支持拉取线程挂起，即根据偏移量无法获取消息时将不挂起线程等待新消息到来
+                    //而是直接返回告诉客户端本次消息拉取未找到消息
                     final RemotingCommand response = PullMessageProcessor.this.processRequest(channel, request, false);
 
                     if (response != null) {

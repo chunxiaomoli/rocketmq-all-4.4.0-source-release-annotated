@@ -67,6 +67,7 @@ public class PullAPIWrapper {
         this.unitMode = unitMode;
     }
 
+    //处理消息拉取结果:将消息字节数组解码铖消息列表填充msgFoundList，并对消息进行过滤模式（TAG）
     public PullResult processPullResult(final MessageQueue mq, final PullResult pullResult,
         final SubscriptionData subscriptionData) {
         PullResultExt pullResultExt = (PullResultExt) pullResult;
