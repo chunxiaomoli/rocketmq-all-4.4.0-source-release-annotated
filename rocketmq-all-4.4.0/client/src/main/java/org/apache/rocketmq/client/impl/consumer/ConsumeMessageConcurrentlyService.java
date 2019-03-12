@@ -212,8 +212,9 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
                 this.submitConsumeRequestLater(consumeRequest);
             }
         } else {
+            //如果拉取的消息条数大于consumerBatchSize则对消息进行分页
             for (int total = 0; total < msgs.size(); ) {
-                List<MessageExt> msgThis = new ArrayList<MessageExt>(consumeBatchSize);
+                List<MessageExt> msgThis = new ArrayList<MessageExt>(consumeBatchSize); //msgThis代表一页消息
                 for (int i = 0; i < consumeBatchSize; i++, total++) {
                     if (total < msgs.size()) {
                         msgThis.add(msgs.get(total));
@@ -384,6 +385,7 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
 
         @Override
         public void run() {
+            //在进行消息负载均衡时，如果该消息队列被分配给消费组内其他消费者后，需要将drop设置为true,阻止消费者消费已经不属于自己的消息队列
             if (this.processQueue.isDropped()) {
                 log.info("the message queue not be able to consume, because it's dropped. group={} {}", ConsumeMessageConcurrentlyService.this.consumerGroup, this.messageQueue);
                 return;
