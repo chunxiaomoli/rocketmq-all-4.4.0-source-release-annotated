@@ -27,16 +27,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TransactionListenerImpl implements TransactionListener {
     private AtomicInteger transactionIndex = new AtomicInteger(0);
 
-    private ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>(); //事务执行结果(生产环境要持久化)
 
     @Override
     public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
         int value = transactionIndex.getAndIncrement();
         int status = value % 3;
-        localTrans.put(msg.getTransactionId(), status);
+        localTrans.put(msg.getTransactionId(), status); //本地事务完成之后，记录本地事务状态
         return LocalTransactionState.UNKNOW;
     }
 
+    //根据事务状态决定是回滚还是继续
     @Override
     public LocalTransactionState checkLocalTransaction(MessageExt msg) {
         Integer status = localTrans.get(msg.getTransactionId());
